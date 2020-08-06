@@ -14,22 +14,20 @@ namespace Infrastructure.Data
         public GenericRepository(StoreContext context)
         {
             _context = context;
-
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
             return await _context.Set<T>().FindAsync(id);
-        }  
+        }
 
         public async Task<IReadOnlyList<T>> ListAllAsync()
         {
             return await _context.Set<T>().ToListAsync();
         }
 
-         public async Task<T> GetEntityWithSpec(ISpecification<T> spec)
+        public async Task<T> GetEntityWithSpec(ISpecification<T> spec)
         {
-            // it return Queryable so we can use FirstOrDefaultAsync method and finally request the database
             return await ApplySpecification(spec).FirstOrDefaultAsync();
         }
 
@@ -38,10 +36,13 @@ namespace Infrastructure.Data
             return await ApplySpecification(spec).ToListAsync();
         }
 
+        public async Task<int> CountAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).CountAsync();
+        }
+
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {
-            // for example we are sending to .GetQuery method we created a Product and we convert it to Queryable type, we add specs if we want to use additional
-            // statements like Where or Include on that Product (We can use any entity not just Product)
             return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
         }
     }

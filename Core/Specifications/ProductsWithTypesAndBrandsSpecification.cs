@@ -6,15 +6,38 @@ namespace Core.Specifications
 {
     public class ProductsWithTypesAndBrandsSpecification : BaseSpecification<Product>
     {
-        public ProductsWithTypesAndBrandsSpecification()
+        public ProductsWithTypesAndBrandsSpecification(ProductSpecParams productParams) 
+            : base(x => 
+                (string.IsNullOrEmpty(productParams.Search) || x.Name.ToLower().Contains(productParams.Search)) &&
+                (!productParams.BrandId.HasValue || x.ProductBrandId == productParams.BrandId) &&
+                (!productParams.TypeId.HasValue || x.ProductTypeId == productParams.TypeId)
+            )
         {
             AddInclude(x => x.ProductType);
             AddInclude(x => x.ProductBrand);
+            AddOrderBy(x => x.Name);
+            ApplyPaging(productParams.PageSize * (productParams.PageIndex - 1), productParams.PageSize);
+
+            if (!string.IsNullOrEmpty(productParams.Sort))
+            {
+                switch (productParams.Sort)
+                {
+                    case "priceAsc":
+                        AddOrderBy(p => p.Price);
+                        break;
+                    case "priceDesc":
+                        AddOrderByDescending(p => p.Price);
+                        break;
+                    default:
+                        AddOrderBy(n => n.Name);
+                        break;
+                }
+            }
         }
 
-        public ProductsWithTypesAndBrandsSpecification(int id) // first we are calling the base constructor in BaseSpecification class we derive from with expression we send to it
+        public ProductsWithTypesAndBrandsSpecification(int id) 
             : base(x => x.Id == id)
-        { // get the ^ product where id is equal to id we sent to this constructor, also include types and brand below so its not null when we return it to client
+        {
             AddInclude(x => x.ProductType);
             AddInclude(x => x.ProductBrand);
         }

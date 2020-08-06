@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Dto;
 using API.Errors;
+using API.Helpers;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
@@ -16,29 +17,36 @@ namespace API.Controllers
 {
     public class ProductsController : BaseApiController
     {
-        public IGenericRepository<Product> _productsRepo;
-        public IGenericRepository<ProductBrand> _productBrandRepo;
-        public IGenericRepository<ProductType> _productTypeRepo;
+        private readonly IGenericRepository<Product> _productsRepo;
+        private readonly IGenericRepository<ProductBrand> _productBrandRepo;
+        private readonly IGenericRepository<ProductType> _productTypeRepo;
         private readonly IMapper _mapper;
 
-        public ProductsController(IGenericRepository<Product> productsRepo, IGenericRepository<ProductBrand> productBrandRepo,
-        IGenericRepository<ProductType> productTypeRepo, IMapper mapper)
+        public ProductsController(IGenericRepository<Product> productsRepo, IGenericRepository<ProductBrand> productBrandRepo, IGenericRepository<ProductType> productTypeRepo, IMapper mapper)
         {
             _mapper = mapper;
-            _productsRepo = productsRepo;
-            _productBrandRepo = productBrandRepo;
             _productTypeRepo = productTypeRepo;
+            _productBrandRepo = productBrandRepo;
+            _productsRepo = productsRepo;
+
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts()
+        public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
+            [FromQuery]ProductSpecParams productParams)
         {
-            var spec = new ProductsWithTypesAndBrandsSpecification();
+            var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
 
-            var products = await _productsRepo.ListAsync(spec); // it takes type from field we defined IGenericRepository<Product>
-            
-            // select changes the properties in list to a new specified form
-            return Ok(_mapper.Map<IReadOnlyList<ProductToReturnDto>>(products));
+            var countSpec = new ProductWithFiltersForCountSpecificication(productParams);
+
+            var totalItems = await _productsRepo.CountAsync(countSpec);
+
+            var products = await _productsRepo.ListAsync(spec);
+
+            var data = _mapper
+                .Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+
+            return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
         }
 
         [HttpGet("{id}")]
@@ -46,14 +54,13 @@ namespace API.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
         {
-            // first we create new instance of this class using specific constructor that matches parameters we send to it
             var spec = new ProductsWithTypesAndBrandsSpecification(id);
 
-            var product = await _productsRepo.GetEntityWithSpec(spec); // then  we call GetEntityWithSpec in GenericRepository, we sending created spec
+            var product = await _productsRepo.GetEntityWithSpec(spec);
 
             if (product == null) return NotFound(new ApiResponse(404));
 
-            return _mapper.Map<ProductToReturnDto>(product);
+            return _mapper.Map<Product, ProductToReturnDto>(product);
         }
 
         [HttpGet("brands")]
@@ -67,6 +74,5 @@ namespace API.Controllers
         {
             return Ok(await _productTypeRepo.ListAllAsync());
         }
-
     }
 }
