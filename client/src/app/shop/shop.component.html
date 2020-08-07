@@ -1,6 +1,7 @@
-<div class="container">
+<div class="container mt-3">
   <div class="row">
     <section class="col-3">
+      <ng-container *ngIf="types && brands">
       <h5 class="text-warning ml-3 my-3">Sort</h5>
       <select
         class="custom-select"
@@ -36,6 +37,7 @@
           {{ type.name }}
         </li>
       </ul>
+    </ng-container>
     </section>
     <section class="col-9">
       <div class="container">
@@ -47,7 +49,7 @@
           [pageNumber]="this.shopParams.pageNumber">
           </app-paging-header>
 
-          <div class="form-inline mt-2">
+          <div class="form-inline" *ngIf="products">
             <input
               class="form-control mr-2"
               #search
