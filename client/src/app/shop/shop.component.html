@@ -1,0 +1,78 @@
+<div class="container">
+  <div class="row">
+    <section class="col-3">
+      <h5 class="text-warning ml-3 my-3">Sort</h5>
+      <select
+        class="custom-select"
+        (change)="onSortSelected($event.target.value)"
+      >
+        <option *ngFor="let sort of sortOptions" [value]="sort.value">
+          {{ sort.name }}
+        </option>
+        <!-- 2. in needs [value]="sort.value" here though, below is not needed-->
+      </select>
+      <h5 class="text-warning ml-3 my-3">Brands</h5>
+      <ul class="list-group">
+        <li
+          class="list-group-item"
+          *ngFor="let brand of brands"
+          [class.active]="brand.id === this.shopParams.brandId"
+          [value]="brand.id"
+          (click)="onBrandSelected(brand.id)"
+        >
+          {{ brand.name }}
+        </li>
+        <!-- 1. not sure if [value]="brand.id and [value]="type.id" are needed here, it works without it -->
+      </ul>
+      <h5 class="text-warning ml-3 my-3">Types</h5>
+      <ul class="list-group">
+        <li
+          class="list-group-item"
+          *ngFor="let type of types"
+          [class.active]="type.id === this.shopParams.typeId"
+          [value]="type.id"
+          (click)="onTypeSelected(type.id)"
+        >
+          {{ type.name }}
+        </li>
+      </ul>
+    </section>
+    <section class="col-9">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center pb-2">
+
+          <app-paging-header
+          [totalCount]="totalCount"
+          [pageSize]="this.shopParams.pageSize"
+          [pageNumber]="this.shopParams.pageNumber">
+          </app-paging-header>
+
+          <div class="form-inline mt-2">
+            <input
+              class="form-control mr-2"
+              #search
+              style="width: 300px;"
+              placeholder="Search"
+              type="text"
+              (keyup.enter)="onSearch()"
+            >
+            <button class="btn btn-outline-primary my-2" (click)="onSearch()">Search</button>
+            <button class="btn btn-outline-success ml-2 my-2" (click)="onReset()">Reset</button>
+          </div>
+        </div>
+        <div class="row">
+          <div *ngFor="let item of products" class="col-md-4 mb-3">
+            <app-product-item [product]="item"></app-product-item>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center" *ngIf="totalCount && this.totalCount > 0 && this.totalCount > this.shopParams.pageSize">
+            <app-pager
+            [totalCount]="totalCount"
+            [pageSize]="this.shopParams.pageSize"
+            (pageChanged)="onPageChanged($event)"> <!-- pageChanged is a Pager event variable, onPageChanged is shop.component.ts event that we assign to pageChanged event emitter-->
+          </app-pager>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
