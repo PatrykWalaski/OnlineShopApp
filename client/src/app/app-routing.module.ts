@@ -3,11 +3,17 @@ import { Routes, RouterModule } from '@angular/router';
 import { ShopComponent } from './shop/shop.component';
 import { ProductDetailsComponent } from './shop/product-details/product-details.component';
 import { HomeComponent } from './home/home.component';
+import { TestErrorComponent } from './core/test-error/test-error.component';
+import { ServerErrorComponent } from './core/server-error/server-error.component';
+import { NotFoundComponent } from './core/not-found/not-found.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
+  {path: 'test-error', component: TestErrorComponent},
+  {path: 'server-error', component: ServerErrorComponent},
+  {path: 'not-found', component: NotFoundComponent},
   // shop  module is only activated when user accessed the shop part of the application
-  {path: 'shop', loadChildren: () => import('./shop/shop.module').then(mod => mod.ShopModule)}, 
+  {path: 'shop', loadChildren: () => import('./shop/shop.module').then(mod => mod.ShopModule)},
   {path: '**', redirectTo: '', pathMatch: 'full'}
 ];
 
@@ -16,5 +22,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { 
-  
+
 }
