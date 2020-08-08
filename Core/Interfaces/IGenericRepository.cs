@@ -5,6 +5,7 @@ using Core.Specifications;
 
 namespace Core.Interfaces
 {
+    // this repo is made for EntityFramework communication, not Redis thats why we create IBasketRepository, we need to query redis
     public interface IGenericRepository<T> where T : BaseEntity
     {
          Task<T> GetByIdAsync(int id);
