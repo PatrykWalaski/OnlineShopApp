@@ -14,7 +14,7 @@ namespace Core.Entities
         }
 
         public string Id { get; set; } // angular gonna generate this basket id
-        public List<BasketItems> Items { get; set; } = new List<BasketItems>();
+        public List<BasketItem> Items { get; set; } = new List<BasketItem>();
 
     }
 }

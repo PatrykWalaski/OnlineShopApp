@@ -31,8 +31,7 @@ namespace API.Controllers
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
-        {
-            
+        {        
             // sending ClaimsPrinciple to extension so we can get email from token
             var user = await _userManager.FindByEmailFromClaimsPrincipal(HttpContext.User);
 
@@ -101,6 +100,9 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
+            if (CheckEmailExistsAsync(registerDto.Email).Result.Value)
+                return new BadRequestObjectResult(new ApiValidationErrorResponse{Errors = new [] {"Email address is in use."}});
+
             var user = new AppUser
             {
                 DisplayName = registerDto.DisplayName,
@@ -109,7 +111,7 @@ namespace API.Controllers
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
-
+            
             if (!result.Succeeded)
                 return BadRequest(new ApiResponse(400));
 
