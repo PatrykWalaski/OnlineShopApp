@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class BasketController : BaseApiController // it gives us a [Route]
+    public class BasketController : BaseApiController
     {
         private readonly IBasketRepository _basketRepository;
         private readonly IMapper _mapper;
@@ -22,13 +22,13 @@ namespace API.Controllers
         {
             var basket = await _basketRepository.GetBasketAsync(id);
 
-            return Ok(basket ?? new CustomerBasket(id)); // if basket is null create new basket with id
+            return Ok(basket ?? new CustomerBasket(id));
         }
 
         [HttpPost]
         public async Task<ActionResult<CustomerBasket>> UpdateBasket(CustomerBasketDto basket)
         {
-            var customerBasket = _mapper.Map<CustomerBasket>(basket);
+            var customerBasket = _mapper.Map<CustomerBasketDto, CustomerBasket>(basket);
 
             var updatedBasket = await _basketRepository.UpdateBasketAsync(customerBasket);
 

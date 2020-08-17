@@ -15,24 +15,22 @@ namespace API.Controllers
 {
     public class AccountController : BaseApiController
     {
-        private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IMapper _mapper;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly ITokenService _tokenService;
-
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper, ITokenService tokenService)
+        private readonly IMapper _mapper;
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService, IMapper mapper)
         {
-            _tokenService = tokenService;
             _mapper = mapper;
-            _userManager = userManager;
+            _tokenService = tokenService;
             _signInManager = signInManager;
+            _userManager = userManager;
         }
 
-        [HttpGet]
         [Authorize]
+        [HttpGet]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
-        {        
-            // sending ClaimsPrinciple to extension so we can get email from token
+        {
             var user = await _userManager.FindByEmailFromClaimsPrincipal(HttpContext.User);
 
             return new UserDto
@@ -55,8 +53,22 @@ namespace API.Controllers
         {
             var user = await _userManager.FindByClaimsPrincipleByEmailWithAddressAsync(HttpContext.User);
 
-            return _mapper.Map<AddressDto>(user.Address);
+            return _mapper.Map<Address, AddressDto>(user.Address);
+        }
 
+        [Authorize]
+        [HttpPut("address")]
+        public async Task<ActionResult<AddressDto>> UpdateUserAddress(AddressDto address)
+        {
+            var user = await _userManager.FindByClaimsPrincipleByEmailWithAddressAsync(HttpContext.User);
+
+            user.Address = _mapper.Map<AddressDto, Address>(address);
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded) return Ok(_mapper.Map<Address, AddressDto>(user.Address));
+
+            return BadRequest("Problem updating the user");
         }
 
         [HttpPost("login")]
@@ -64,13 +76,11 @@ namespace API.Controllers
         {
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
-            if (user == null)
-                return Unauthorized(new ApiResponse(401));
+            if (user == null) return Unauthorized(new ApiResponse(401));
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
-            if (!result.Succeeded)
-                return Unauthorized(new ApiResponse(401));
+            if (!result.Succeeded) return Unauthorized(new ApiResponse(401));
 
             return new UserDto
             {
@@ -80,28 +90,13 @@ namespace API.Controllers
             };
         }
 
-        [Authorize]
-        [HttpPut("address")]
-        public async Task<ActionResult<AddressDto>> UpdateUserAddress(AddressDto address)
-        {
-            var user = await _userManager.FindByClaimsPrincipleByEmailWithAddressAsync(HttpContext.User);
-
-            user.Address = _mapper.Map<Address>(address);
-            
-            var result =  await _userManager.UpdateAsync(user);
-
-            if(result.Succeeded)
-                return _mapper.Map<AddressDto>(user.Address);
-
-            return BadRequest("Problem updating the user");
-        }
-
-
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (CheckEmailExistsAsync(registerDto.Email).Result.Value)
-                return new BadRequestObjectResult(new ApiValidationErrorResponse{Errors = new [] {"Email address is in use."}});
+            {
+                return new BadRequestObjectResult(new ApiValidationErrorResponse{Errors = new []{"Email address is in use"}});
+            }
 
             var user = new AppUser
             {
@@ -111,19 +106,15 @@ namespace API.Controllers
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
-            
-            if (!result.Succeeded)
-                return BadRequest(new ApiResponse(400));
+
+            if (!result.Succeeded) return BadRequest(new ApiResponse(400));
 
             return new UserDto
             {
-                Email = user.Email,
+                DisplayName = user.DisplayName,
                 Token = _tokenService.CreateToken(user),
-                DisplayName = user.DisplayName
+                Email = user.Email
             };
-
         }
-
-        
     }
 }

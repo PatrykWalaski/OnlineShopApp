@@ -67,7 +67,7 @@ namespace API
             app.UseAuthentication(); //order is important
             app.UseAuthorization(); //order is important
 
-            app.UseSwaggerDocumentation();
+            app.UseSwaggerDocumention();
 
             app.UseEndpoints(endpoints =>
             {

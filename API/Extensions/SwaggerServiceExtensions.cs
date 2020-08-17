@@ -8,11 +8,10 @@ namespace API.Extensions
     {
         public static IServiceCollection AddSwaggerDocumentation(this IServiceCollection services)
         {
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(c => 
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlineShopApp API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "SkiNet API", Version = "v1"});
 
-                // Validation/Authentication part needed if we want to test them in swagger
                 var securitySchema = new OpenApiSecurityScheme
                 {
                     Description = "JWT Auth Bearer Scheme",
@@ -28,20 +27,18 @@ namespace API.Extensions
                 };
 
                 c.AddSecurityDefinition("Bearer", securitySchema);
-                var securityRequirement = new OpenApiSecurityRequirement {{securitySchema, new [] {"Bearer"}}};
+                var securityRequirement = new OpenApiSecurityRequirement {{securitySchema, new[] {"Bearer"}}};
                 c.AddSecurityRequirement(securityRequirement);
             });
 
             return services;
         }
 
-        public static IApplicationBuilder UseSwaggerDocumentation(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSwaggerDocumention(this IApplicationBuilder app)
         {
             app.UseSwagger();
-            app.UseSwaggerUI(c => 
-            { 
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "OnlineShopApp API v1"); 
-            });
+            app.UseSwaggerUI(c => {c
+                .SwaggerEndpoint("/swagger/v1/swagger.json", "SkiNet API v1");});
 
             return app;
         }
