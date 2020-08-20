@@ -1,13 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OrdersComponent } from './orders.component';
 import { Routes, RouterModule } from '@angular/router';
-import { ShopComponent } from './shop.component';
-import { ProductDetailsComponent } from './product-details/product-details.component';
-
+import { OrderDetailedComponent } from './order-detailed/order-detailed.component';
 
 const routes: Routes = [
-  {path: '', component: ShopComponent},
-  {path: ':id', component: ProductDetailsComponent, data: {breadcrumb: {alias: 'productDetails'}}},
+  {path: '', component: OrdersComponent},
+  {path: ':id', component: OrderDetailedComponent, data: {breadcrumb: {alias: 'OrderDetailed'}}},
 ];
 
 @NgModule({
@@ -20,4 +19,4 @@ const routes: Routes = [
     RouterModule,
   ]
 })
-export class ShopRoutingModule { }
+export class OrdersRoutingModule { }

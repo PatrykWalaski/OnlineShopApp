@@ -1,0 +1,32 @@
+<ng-container *ngIf="orders">
+  <div class="container mt-2">
+    <div class="col-12 py-5 mb-1">
+      <table class="table table-hover" style="cursor: pointer;">
+        <thead>
+          <tr class="bg-light">
+            <th scope="col" class="border-0">
+              <div class="p-2 px-3 text-uppercase">Order</div>
+            </th>
+            <th scope="col" class="border-0">
+              <div class="py-2 text-uppercase">Date</div>
+            </th>
+            <th scope="col" class="border-0">
+              <div class="py-2 text-uppercase">Total</div>
+            </th>
+            <th scope="col" class="border-0">
+              <div class="py-2 text-uppercase">Status</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders" routerLink="/orders/{{order.id}}">
+            <td class="align-middle"> <Strong># {{ order.id }}</Strong></td>
+            <td class="align-middle"> {{ order.orderDate | date: "medium" }}</td>
+            <td class="align-middle"> {{ order.total | currency }}</td>
+            <td class="align-middle"> {{ order.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-container>
