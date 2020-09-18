@@ -9,6 +9,7 @@ import { AccountService } from './account/account.service';
 })
 export class AppComponent implements OnInit {
   title = 'Skinet';
+  token: string;
 
   constructor(
     private basketService: BasketService,
@@ -17,23 +18,23 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadBasket();
+    this.token = localStorage.getItem('token');
     this.loadCurrentUser();
   }
 
   loadCurrentUser() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.accountService.loadCurrentUser(token).subscribe(
+    if (this.token) {
+      this.accountService.loadCurrentUser(this.token).subscribe(
         () => {
-          console.log('loaded user');
+          console.log('User Loaded');
         },
         (error) => {
           console.log(error);
         }
       );
-    } else
+    }
+    else
     {
-      console.log('set to null');
       this.accountService.setCurrentUserToNull();
     }
   }

@@ -6,16 +6,17 @@ import { IUser } from '../shared/models/user';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { IAddress } from '../shared/models/address';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
   baseUrl = environment.apiUrl;
-  private currentUserSource: ReplaySubject<IUser> = new ReplaySubject<IUser>(null);
+  private currentUserSource = new ReplaySubject<IUser>(1);
   currentUser$ = this.currentUserSource.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, private toastr: ToastrService) { }
 
   loadCurrentUser(token: string) {
     let headers = new HttpHeaders();
@@ -24,8 +25,6 @@ export class AccountService {
     return this.http.get(this.baseUrl + 'account', {headers}).pipe(
       map((user: IUser) => {
         if (user) {
-          console.log("from loadcurrent");
-          console.log(user);
           localStorage.setItem('token', user.token);
           this.currentUserSource.next(user);
         }
@@ -37,11 +36,11 @@ export class AccountService {
     return this.http.post(this.baseUrl + 'account/login', values).pipe(
       map((user: IUser) => {
         if (user) {
-          console.log("from login");
-          console.log(user);
           localStorage.setItem('token', user.token);
           this.currentUserSource.next(user);
-          console.log(this.currentUser$);
+        } else 
+        {
+          this.toastr.error('Wrong password or email.');
         }
       })
     );

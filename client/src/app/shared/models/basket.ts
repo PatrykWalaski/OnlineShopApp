@@ -1,4 +1,5 @@
 export interface IBasket {
+    id: number;
     guid: string;
     items: IBasketItem[];
 }
@@ -15,6 +16,7 @@ export interface IBasketItem {
 
 
 export class Basket implements IBasket {
+    id: number;
     guid: string;
     items: IBasketItem[] = [];
 }

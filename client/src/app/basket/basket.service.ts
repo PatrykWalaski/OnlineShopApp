@@ -70,7 +70,7 @@ export class BasketService {
     }
     const itemToAdd: IBasketItem = this.mapProductItemToBasketItem(product, quantity);
 
-    basket.items = this.addOrUpdateItem(basket.items, itemToAdd, quantity); // TODO quantity
+    basket.items = this.addOrUpdateItem(basket.items, itemToAdd, quantity);
     this.updateBasket(basket);
   }
 
@@ -170,5 +170,9 @@ export class BasketService {
   setShippingPrice(deliveryMethod: IDeliveryMethod) {
     this.shipping = deliveryMethod.price;
     this.calculateTotals();
+  }
+
+  getCurrentBasketValue(){
+    return this.basketSource.value;
   }
 }

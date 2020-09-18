@@ -5,28 +5,32 @@ using Core.Entities;
 using Core.Entities.OrderAggregate;
 using Core.Interfaces;
 using Core.Specifications;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly StoreContext _context;
 
-        public OrderService(IUnitOfWork unitOfWork)
+        public OrderService(IUnitOfWork unitOfWork, StoreContext context)
         {
+            _context = context;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<Order> CreateOrderAsync(string buyerEmail, int deliveryMethodId, int basketId, Address shippingAddress)
         {
             // get basket from the repo 
-            var basket = await _unitOfWork.Repository<CustomerBasket>().GetByIdAsync(basketId);
+            var basket = await _context.CustomerBaskets.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == basketId);
 
             // get items from the product repo
             var items = new List<OrderItem>();
             foreach (var item in basket.Items)
             {
-                var productItem = await _unitOfWork.Repository<Product>().GetByIdAsync(item.Id);
+                var productItem = await _unitOfWork.Repository<Product>().GetByIdAsync(item.ProductId);
                 var itemOrdered = new ProductItemOrdered(productItem.Id, productItem.Name, productItem.PictureUrl);
                 var orderItem = new OrderItem(itemOrdered, productItem.Price, item.Quantity);
                 items.Add(orderItem);
@@ -42,16 +46,9 @@ namespace Infrastructure.Services
             var order = new Order(items, buyerEmail, shippingAddress, deliveryMethod, subtotal);
 
             _unitOfWork.Repository<Order>().Add(order);
-            
+
             // save to db
             var result = await _unitOfWork.Complete();
-
-            if (result <= 0) return null;
-
-            // delete basket
-            _unitOfWork.Repository<CustomerBasket>().Delete(basket);
-
-            var resultDelete = await _unitOfWork.Complete();
 
             if (result <= 0) return null;
 
