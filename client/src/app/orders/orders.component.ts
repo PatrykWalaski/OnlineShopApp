@@ -21,7 +21,6 @@ export class OrdersComponent implements OnInit {
   getOrders() {
     this.ordersService.getOrders().subscribe(response => {
       this.orders = response;
-      console.log(this.orders);
     }, error => {
       console.log(error);
     });
