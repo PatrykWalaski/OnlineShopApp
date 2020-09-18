@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities.OrderAggregate
 {
@@ -23,7 +24,10 @@ namespace Core.Entities.OrderAggregate
         public Address ShipToAddress { get; set; }
         public DeliveryMethod DeliveryMethod { get; set; }
         public IReadOnlyList<OrderItem> OrderItems { get; set; }
+        
+        [Column(TypeName = "decimal(18,4)")]
         public decimal Subtotal { get; set; }
+        
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
         public string PaymentIntentId { get; set; }
         public decimal GetTotal() 

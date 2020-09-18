@@ -1,20 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities
 {
-    public class CustomerBasket
+    public class CustomerBasket : BaseEntity
     {
-        public CustomerBasket()
-        {
-        }
-
-        public CustomerBasket(string id)
-        {
-            Id = id;
-        }
-
-        public string Id { get; set; } // angular gonna generate this basket id
-        public List<BasketItem> Items { get; set; } = new List<BasketItem>();
+        public List<BasketItem> Items { get; set; }
+        public Guid Guid { get ; set; }
 
     }
 }

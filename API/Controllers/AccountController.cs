@@ -82,10 +82,12 @@ namespace API.Controllers
 
             if (!result.Succeeded) return Unauthorized(new ApiResponse(401));
 
+            var token = _tokenService.CreateToken(user);
+            
             return new UserDto
             {
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user),
+                Token = token,
                 DisplayName = user.DisplayName
             };
         }

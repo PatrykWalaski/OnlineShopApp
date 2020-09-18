@@ -5,8 +5,8 @@ namespace API.Dto
 {
     public class CustomerBasketDto
     {
-        [Required]
-        public string Id { get; set; }
+        public int Id { get; set; }
+        public string Guid { get; set; }
         public List<BasketItemDto> Items { get; set; }
     }
 }

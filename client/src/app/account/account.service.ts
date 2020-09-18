@@ -24,6 +24,8 @@ export class AccountService {
     return this.http.get(this.baseUrl + 'account', {headers}).pipe(
       map((user: IUser) => {
         if (user) {
+          console.log("from loadcurrent");
+          console.log(user);
           localStorage.setItem('token', user.token);
           this.currentUserSource.next(user);
         }
@@ -35,8 +37,11 @@ export class AccountService {
     return this.http.post(this.baseUrl + 'account/login', values).pipe(
       map((user: IUser) => {
         if (user) {
+          console.log("from login");
+          console.log(user);
           localStorage.setItem('token', user.token);
           this.currentUserSource.next(user);
+          console.log(this.currentUser$);
         }
       })
     );
@@ -69,5 +74,9 @@ export class AccountService {
 
   updateUserAddress(address: IAddress) {
     return this.http.put<IAddress>(this.baseUrl + 'account/address', address);
+  }
+
+  setCurrentUserToNull(){
+    this.currentUserSource.next(null);
   }
 }

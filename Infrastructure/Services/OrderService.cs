@@ -10,19 +10,17 @@ namespace Infrastructure.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly IBasketRepository _basketRepo;
         private readonly IUnitOfWork _unitOfWork;
 
-        public OrderService(IUnitOfWork unitOfWork, IBasketRepository basketRepo)
+        public OrderService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _basketRepo = basketRepo;
         }
 
-        public async Task<Order> CreateOrderAsync(string buyerEmail, int deliveryMethodId, string basketId, Address shippingAddress)
+        public async Task<Order> CreateOrderAsync(string buyerEmail, int deliveryMethodId, int basketId, Address shippingAddress)
         {
             // get basket from the repo 
-            var basket = await _basketRepo.GetBasketAsync(basketId);
+            var basket = await _unitOfWork.Repository<CustomerBasket>().GetByIdAsync(basketId);
 
             // get items from the product repo
             var items = new List<OrderItem>();
@@ -51,7 +49,11 @@ namespace Infrastructure.Services
             if (result <= 0) return null;
 
             // delete basket
-            await _basketRepo.DeleteBasketAsync(basketId);
+            _unitOfWork.Repository<CustomerBasket>().Delete(basket);
+
+            var resultDelete = await _unitOfWork.Complete();
+
+            if (result <= 0) return null;
 
             // return order
             return order;
